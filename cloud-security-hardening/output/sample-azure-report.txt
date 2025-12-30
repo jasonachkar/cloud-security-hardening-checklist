@@ -1,0 +1,228 @@
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                                                                          ║
+║            Azure Security Hardening Framework                            ║
+║            CIS Microsoft Azure Foundations Benchmark v2.0.0              ║
+║                                                                          ║
+║            Production-Grade Security Assessment Tool                     ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Assessment Start Time: 2025-12-29 14:30:00
+
+[INFO] Azure Subscription: Production (12345678-1234-1234-1234-123456789012)
+[INFO] Subscription ID: 12345678-1234-1234-1234-123456789012
+[INFO] Tenant ID: 87654321-4321-4321-4321-210987654321
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Running: Identity & Access Management                                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+============================================
+ AZ-IAM-01: Multi-Factor Authentication for Privileged Accounts
+============================================
+
+[WARN] Automated MFA check requires Microsoft Graph PowerShell module
+[INFO] Install with: Install-Module Microsoft.Graph -Scope CurrentUser
+[INFO] Manual check: Entra ID > Users > Per-user MFA or Conditional Access
+[INFO] CIS Control: 1.1.1, 1.1.2, 1.2.1
+
+============================================
+ AZ-IAM-02: No Permanent Global Administrator Assignments
+============================================
+
+[WARN] Automated check requires Microsoft.Graph.Identity.DirectoryManagement module
+[INFO] Manual check:
+[INFO]   1. Navigate to Entra ID > Roles and administrators
+[INFO]   2. Select 'Global Administrator'
+[INFO]   3. Verify assignments are 'Eligible' (PIM) not 'Active' (permanent)
+[INFO]   4. Use Privileged Identity Management for just-in-time access
+[INFO] CIS Control: 1.1.3
+
+============================================
+ AZ-IAM-05: Review RBAC Assignments
+============================================
+
+[INFO] Analyzing RBAC role assignments...
+[INFO] Checking subscription: Production
+[WARN] Found 8 Owner role assignments - review for least privilege
+[INFO] Found 15 Contributor role assignments
+[INFO] Found 12 direct user role assignments
+[INFO] Best practice: Assign roles to groups, not individual users
+[PASS] RBAC assignments reviewed for subscription: Production
+
+============================================
+ IAM Security Check Summary
+============================================
+
+Results:
+  PASS: 1
+  FAIL: 0
+  WARN: 4
+
+Compliance Rate: 20.00%
+
+Note: Some checks require Microsoft Graph PowerShell module for full automation.
+Install with: Install-Module Microsoft.Graph -Scope CurrentUser
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Running: Logging & Monitoring                                            ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+========== AZ-LOG-01: Activity Log Retention and Export ==========
+
+[INFO] Checking subscription: Production
+[PASS] Activity Log exported to Log Analytics or Storage - subscription: Production
+[PASS] Activity Log retention >= 365 days - subscription: Production
+
+========== AZ-LOG-02 & AZ-LOG-03: Microsoft Defender for Cloud ==========
+
+[INFO] Checking Defender for Cloud - subscription: Production
+[PASS] Defender for VirtualMachines enabled
+[PASS] Defender for AppServices enabled
+[FAIL] Defender for SqlServers not enabled or on Free tier
+[INFO]   CIS Control: 2.1.x
+[PASS] Defender for StorageAccounts enabled
+[PASS] Defender for KubernetesService enabled
+[PASS] Defender for ContainerRegistry enabled
+[PASS] Defender for KeyVaults enabled
+[PASS] Auto-provisioning of monitoring agent enabled
+
+========== AZ-LOG-04: Diagnostic Logs for Resources ==========
+
+[INFO] Checking diagnostic logs - subscription: Production
+[PASS] Diagnostic logs enabled for storage: prodstorageacct01
+[PASS] Diagnostic logs enabled for storage: devstorageacct01
+[WARN] Diagnostic logs not enabled for storage: tempstorageacct
+[PASS] Diagnostic logs enabled for Key Vault: prod-keyvault-01
+[PASS] Diagnostic logs enabled for Key Vault: dev-keyvault-01
+
+========== AZ-LOG-05: Network Security Group Flow Logs ==========
+
+[INFO] Checking NSG Flow Logs - subscription: Production
+[PASS] NSG Flow Logs enabled with retention >= 90 days: prod-nsg-web
+[PASS] NSG Flow Logs enabled with retention >= 90 days: prod-nsg-app
+[WARN] NSG Flow Logs enabled but retention < 90 days: dev-nsg-test
+[INFO]   Current retention: 30 days
+[INFO]   CIS Control: 6.6
+[FAIL] NSG Flow Logs not enabled: temp-nsg-01
+[INFO]   CIS Control: 6.6
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║   Logging & Monitoring Check Summary                                      ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Results:
+  PASS: 12
+  FAIL: 2
+  WARN: 2
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Running: Network Security                                                ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+========== AWS-NET-01/02: Security Group Rules ==========
+
+[INFO] Checking subscription: Production
+[PASS] RDP not exposed to internet in NSG: prod-nsg-web
+[PASS] SSH not exposed to internet in NSG: prod-nsg-web
+[PASS] NSG does not allow all inbound traffic: prod-nsg-web
+[PASS] RDP not exposed to internet in NSG: prod-nsg-app
+[PASS] SSH not exposed to internet in NSG: prod-nsg-app
+[PASS] NSG does not allow all inbound traffic: prod-nsg-app
+[FAIL] SSH (22) exposed to internet in NSG: dev-nsg-test - CIS 6.2
+[PASS] NSG does not allow all inbound traffic: dev-nsg-test
+[PASS] Network Watcher enabled in region: eastus
+[PASS] Network Watcher enabled in region: westus
+[PASS] Network Watcher enabled in region: northeurope
+
+=== Summary ===
+PASS: 10 | FAIL: 1 | WARN: 0
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Running: Storage Security                                                ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+=== Azure Storage Security Checks ===
+
+[INFO] Checking subscription: Production
+[PASS] Secure transfer (HTTPS) required: prodstorageacct01 - CIS 3.1
+[PASS] Public blob access disabled: prodstorageacct01 - CIS 3.2
+[PASS] Encryption enabled for Blob and File services: prodstorageacct01 - CIS 3.3, 3.4
+[PASS] Minimum TLS version 1.2: prodstorageacct01
+[PASS] Default network access denied: prodstorageacct01 - CIS 3.7
+[PASS] Secure transfer (HTTPS) required: devstorageacct01 - CIS 3.1
+[PASS] Public blob access disabled: devstorageacct01 - CIS 3.2
+[PASS] Encryption enabled for Blob and File services: devstorageacct01 - CIS 3.3, 3.4
+[PASS] Minimum TLS version 1.2: devstorageacct01
+[WARN] Default network access not denied: devstorageacct01 - CIS 3.7
+[PASS] Soft delete enabled for Key Vault: prod-keyvault-01 - CIS 8.4
+[PASS] Purge protection enabled for Key Vault: prod-keyvault-01 - CIS 8.4
+[PASS] All keys have expiration dates in Key Vault: prod-keyvault-01
+[PASS] All secrets have expiration dates in Key Vault: prod-keyvault-01
+
+=== Summary ===
+PASS: 13 | FAIL: 0 | WARN: 1
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Running: Compute Security                                                ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+
+=== Azure Compute Security Checks ===
+
+[INFO] Checking subscription: Production
+[PASS] VM uses managed disks: prod-web-vm-01 - CIS 7.1
+[PASS] Disk encryption enabled for VM: prod-web-vm-01 - CIS 7.2
+[INFO] VM prod-web-vm-01 has 3 extensions installed
+[INFO]   - Microsoft.Azure.Security/IaaSAntimalware
+[INFO]   - Microsoft.Azure.Monitor/AzureMonitorLinuxAgent
+[INFO]   - Microsoft.Azure.Security/AzureDiskEncryption
+[PASS] Endpoint protection detected on VM: prod-web-vm-01 - CIS 7.5
+[PASS] VM uses managed disks: prod-app-vm-01 - CIS 7.1
+[PASS] Disk encryption enabled for VM: prod-app-vm-01 - CIS 7.2
+[INFO] VM prod-app-vm-01 has 2 extensions installed
+[INFO]   - Microsoft.Azure.Security/IaaSAntimalware
+[INFO]   - Microsoft.Azure.Monitor/AzureMonitorLinuxAgent
+[PASS] Endpoint protection detected on VM: prod-app-vm-01 - CIS 7.5
+[PASS] Unattached disk is encrypted: prod-backup-disk-01 - CIS 7.3
+
+=== Summary ===
+PASS: 7 | FAIL: 0 | WARN: 0
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    ASSESSMENT SUMMARY REPORT                              ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Subscription: Production (12345678-1234-1234-1234-123456789012)
+Assessment Date: 2025-12-29 14:35:23
+Duration: 5.38 minutes
+
+Results by Category:
+═══════════════════════════════════════════════════════════════════════════
+Identity & Access Management             [✗] FAIL
+Logging & Monitoring                     [✗] FAIL
+Network Security                         [✗] FAIL
+Storage Security                         [✓] PASS
+Compute Security                         [✓] PASS
+
+═══════════════════════════════════════════════════════════════════════════
+
+Overall Compliance Rate: 40.00%
+  Categories Passed: 2 / 5
+  Categories Failed: 3 / 5
+
+═══════════════════════════════════════════════════════════════════════════
+
+⚠  ACTION REQUIRED: 3 security check categories failed
+   Review failures above and consult remediation guide:
+   docs/05-remediation-guide.md
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  Assessment Complete                                                      ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
